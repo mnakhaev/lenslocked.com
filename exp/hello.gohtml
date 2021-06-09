@@ -1,0 +1,7 @@
+<h1>Hello, {{.Name}}</h1>
+<p>Your city is {{ .City }} and your age is {{ .Age }}</p>>
+<p>Result of task1: {{if index .TaskToResult "task1"}} success! {{else}} failure! {{end}}</p>
+<p>Result of taskN: {{if index .TaskToResult "taskN"}} success {{else}} failure! {{end}}</p>
+<p>Result of all tasks:
+    {{ range $key, $value := .TaskToResult}}<li><strong>{{ $key }}</strong>: {{ $value }}</li>{{ end }}
+</p>
