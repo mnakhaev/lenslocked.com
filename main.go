@@ -2,36 +2,11 @@ package main
 
 import (
 	"fmt"
+	"lenslocked.com/controllers"
 	"net/http"
-
-	"lenslocked.com/views"
 
 	"github.com/gorilla/mux"
 )
-
-var homeView, contactView *views.View
-
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func contact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	err := contactView.Template.ExecuteTemplate(w, contactView.Layout, nil)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func faq(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>Frequently asked questions</h1>"+
-		"<p>To be updated soon...</p>")
-}
 
 func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
@@ -39,13 +14,20 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	homeView = views.NewView("bootstrap", "views/home.gohtml")
-	contactView = views.NewView("bootstrap", "views/contact.gohtml")
+	staticC := controllers.NewStatic()
+	usersC := controllers.NewUsers()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", home)
-	r.HandleFunc("/contact", contact)
-	r.HandleFunc("/faq", faq)
+
+	// Handle accepts object (suitable for static pages handling), HandleFunc accepts function.
+	// For static views below it's only required to set content-type and render view.
+	// That's why it's not necessary to use HandleFunc there.
+	r.Handle("/", staticC.HomeView).Methods("GET")
+	r.Handle("/contact", staticC.ContactView).Methods("GET")
+	r.Handle("/faq", staticC.FaqView).Methods("GET")
+
+	r.HandleFunc("/signup", usersC.New).Methods("GET")
+	r.HandleFunc("/signup", usersC.Create).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	http.ListenAndServe(":8080", r)
 }
