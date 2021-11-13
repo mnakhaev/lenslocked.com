@@ -10,10 +10,11 @@ import (
 
 func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>Current page is not yet implemented...</h1>")
+	_, _ = fmt.Fprint(w, "<h1>Current page is not yet implemented...</h1>")
 }
 
 func main() {
+	galleriesC := controllers.NewGalleries()
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers()
 
@@ -26,8 +27,9 @@ func main() {
 	r.Handle("/contact", staticC.ContactView).Methods("GET")
 	r.Handle("/faq", staticC.FaqView).Methods("GET")
 
+	r.HandleFunc("/galleries/new", galleriesC.New).Methods("GET")
 	r.HandleFunc("/signup", usersC.New).Methods("GET")
 	r.HandleFunc("/signup", usersC.Create).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFound)
-	http.ListenAndServe(":8080", r)
+	_ = http.ListenAndServe(":8080", r)
 }
